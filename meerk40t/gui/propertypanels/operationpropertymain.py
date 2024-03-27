@@ -784,6 +784,72 @@ class PassesPanel(wx.Panel):
 # end of class PassesPanel
 
 
+class AirAssistPanel(wx.Panel):
+    def __init__(self, *args, context=None, node=None, **kwds):
+        # begin wxGlade: PassesPanel.__init__
+        kwds["style"] = kwds.get("style", 0)
+        wx.Panel.__init__(self, *args, **kwds)
+        self.context = context
+        self.operation = node
+
+        sizer_main = wx.BoxSizer(wx.HORIZONTAL)
+
+        sizer_air_assist = StaticBoxSizer(
+            self, wx.ID_ANY, _("Air assist:"), wx.HORIZONTAL
+        )
+
+        self.air_assist = wxCheckBox(self, wx.ID_ANY, _("Enable"))
+        self.air_assist.SetToolTip(_("Enable Air Assist"))
+        sizer_air_assist.Add(self.air_assist, 0, wx.EXPAND, 0)
+
+        sizer_main.Add(sizer_air_assist, 1, wx.EXPAND, 0)
+
+        self.SetSizer(sizer_main)
+
+        self.Layout()
+
+        self.Bind(wx.EVT_CHECKBOX, self.on_check_air_assist, self.air_assist)
+        # end wxGlade
+
+    def pane_hide(self):
+        pass
+
+    def pane_show(self):
+        pass
+
+    def accepts(self, node):
+        return node.type in (
+            "op cut",
+            "op engrave",
+            "op raster",
+            "op image",
+            "op dots",
+        )
+
+    def set_widgets(self, node):
+        self.operation = node
+        if self.operation is None or not self.accepts(node):
+            self.Hide()
+            return
+        on = self.air_assist.GetValue()
+        self.Layout()
+        self.Show()
+
+    def on_check_air_assist(
+        self, event=None
+    ):  # wxGlade: OperationProperty.<event_handler>
+        on = self.air_assist.GetValue()
+        self.operation.air_assist_enabled = on
+        print(f"stat{on}")
+        self.context.elements.signal(
+            "element_property_reload", self.operation, "air_assist"
+        )
+        event.Skip()
+
+
+# end of class AirAssistPanel
+
+
 class InfoPanel(wx.Panel):
     def __init__(self, *args, context=None, node=None, **kwds):
         # begin wxGlade: PassesPanel.__init__
@@ -1579,6 +1645,12 @@ class ParameterPanel(ScrolledPanel):
         self.passes_panel = PassesPanel(self, wx.ID_ANY, context=context, node=node)
         param_sizer.Add(self.passes_panel, 0, wx.EXPAND, 0)
         self.panels.append(self.passes_panel)
+
+        self.air_assist_panel = AirAssistPanel(
+            self, wx.ID_ANY, context=context, node=node
+        )
+        param_sizer.Add(self.air_assist_panel, 0, wx.EXPAND, 0)
+        self.panels.append(self.air_assist_panel)
 
         self.raster_panel = RasterSettingsPanel(
             self, wx.ID_ANY, context=context, node=node

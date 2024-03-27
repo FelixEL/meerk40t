@@ -230,6 +230,28 @@ class BasicOpPanel(wx.Panel):
             mynode = node
             return handler
 
+        def on_check_air_assist(node):
+            def handler(event):
+                # print(f"Show for {mynode.type}")
+                cb = event.GetEventObject()
+                newflag = True
+                if hasattr(mynode, "air_assist") and hasattr(mynode, "is_visible"):
+                    if mynode.output is not None:
+                        if not mynode.output:
+                            newflag = bool(not mynode.is_visible)
+
+                    mynode.is_visible = newflag
+                    mynode.updated()
+                    self.context.elements.validate_selected_area()
+                    ops = [mynode]
+                    self.ignore_refill = True
+                    self.context.elements.signal("element_property_update", ops)
+                    self.context.elements.signal("refresh_scene", "Scene")
+                cb.SetValue(newflag)
+
+            mynode = node
+            return handler
+
         def on_check_output(node, showctrl):
             def handler(event):
                 # print(f"Output for {mynode.type}")
@@ -427,6 +449,14 @@ class BasicOpPanel(wx.Panel):
         header.SetMaxSize(dip_size(self, 20, -1))
         header.SetToolTip(_("Show"))
         info_sizer.Add(header, 1, wx.ALIGN_CENTER_VERTICAL, 0)
+
+
+        header = wx.StaticText(self.op_panel, wx.ID_ANY, label="AA")
+        header.SetMinSize(dip_size(self, 20, -1))
+        header.SetMaxSize(dip_size(self, 20, -1))
+        header.SetToolTip(_("Air Assist"))
+        info_sizer.Add(header, 1, wx.ALIGN_CENTER_VERTICAL, 0)
+
         if self.use_percent:
             unit = " [%]"
         else:
@@ -506,7 +536,7 @@ class BasicOpPanel(wx.Panel):
                 c_out.SetToolTip(
                     info
                     + "\n"
-                    + _("Enable this operation for inclusion in Execute Job.")
+                    + _("Enable this operation for inclusion in Execute Jobasdasdas.")
                 )
                 op_sizer.Add(c_out, 1, wx.ALIGN_CENTER_VERTICAL, 0)
 
@@ -526,6 +556,16 @@ class BasicOpPanel(wx.Panel):
                     showflag = False
                 c_show.Enable(showflag)
                 op_sizer.Add(c_show, 1, wx.ALIGN_CENTER_VERTICAL, 0)
+
+                c_air_assist = wxCheckBox(self.op_panel, id=wx.ID_ANY)
+                c_air_assist.SetMinSize(dip_size(self, 20, -1))
+                c_air_assist.SetMaxSize(dip_size(self, 20, -1))
+                c_air_assist.SetToolTip(
+                    info + "\n" + _("Enable Air Assist")
+                )
+                self.op_panel.Bind(wx.EVT_CHECKBOX, on_check_air_assist(op), c_air_assist)
+                op_sizer.Add(c_air_assist, 1, wx.ALIGN_CENTER_VERTICAL, 0)
+
 
                 t_power = TextCtrl(
                     self.op_panel,

@@ -148,6 +148,20 @@ class GRBLDevice(Service, Status):
                 "tip": _("Override native home location"),
                 "subsection": "_30_" + _("Home position"),
             },
+            {
+                "attr": "coolant",
+                "object": self,
+                "default": "",
+                "type": str,
+                "style": "option",
+                "label": _("Coolant"),
+                "tip": _(
+                    "Does this device has a method to turn on / off a coolant associated to it?"
+                ),
+                "section": "_99_" + _("Coolant Support"),
+                "dynamic": self.kernel.root.coolant.coolant_choice_helper(self),
+                "signals": "coolant_changed",
+            },
         ]
         self.register_choices("bed_dim", choices)
         # This device prefers to display power level in percent
@@ -261,6 +275,7 @@ class GRBLDevice(Service, Status):
             self.register_choices("tcp", choices)
 
 
+
         choices = [
             {
                 "attr": "address",
@@ -290,7 +305,12 @@ class GRBLDevice(Service, Status):
                 "default": "serial",
                 "style": "combosmall",
                 "choices": ["serial", "tcp", "ws", "mock"],
-                "display": [_("Serial"), _("TCP-Network"), _("WebSocket-Network"), _("mock")],
+                "display": [
+                    _("Serial"),
+                    _("TCP-Network"),
+                    _("WebSocket-Network"),
+                    _("mock"),
+                ],
                 "type": str,
                 "label": _("Interface Type"),
                 "tip": _("Select the interface type for the grbl device"),
@@ -545,6 +565,8 @@ class GRBLDevice(Service, Status):
         self.kernel.root.coolant.claim_coolant(self, self.device_coolant)
 
         _ = self.kernel.translation
+        
+        self.kernel.root.coolant.claim_coolant(self, self.coolant)
 
         if self.permit_serial:
             self._register_console_serial()
