@@ -14,8 +14,7 @@ from meerk40t.gui.icons import (
     icon_trash,
     icons8_down,
     icons8_home_filled,
-    icons8_up,
-    icon_air_assist
+    icons8_up
 )
 from meerk40t.gui.wxutils import StaticBoxSizer, dip_size, wxButton
 
