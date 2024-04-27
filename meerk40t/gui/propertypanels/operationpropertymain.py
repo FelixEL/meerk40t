@@ -839,8 +839,7 @@ class AirAssistPanel(wx.Panel):
         self, event=None
     ):  # wxGlade: OperationProperty.<event_handler>
         on = self.air_assist.GetValue()
-        self.operation.air_assist_enabled = on
-        print(f"stat{on}")
+        self.operation.air_assist = on
         self.context.elements.signal(
             "element_property_reload", self.operation, "air_assist"
         )

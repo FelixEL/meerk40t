@@ -236,21 +236,19 @@ class BasicOpPanel(wx.Panel):
                 cb = event.GetEventObject()
                 newflag = True
                 if hasattr(mynode, "air_assist"):
-
-                    self.context.elements.validate_selected_area()
                     ops = [mynode]
                     self.ignore_refill = True
                     self.context.elements.signal("element_property_update", ops)
                     newflag = not bool(mynode.air_assist)
                     mynode.air_assist = newflag
                     mynode.updated()
-                    #debug:
-                    if(newflag):
+                    # debug:
+                    if (newflag):
                         print("air_enabled")
                     else:
                         print("air_disabled")
                 cb.SetValue(mynode.air_assist)
-                
+
             mynode = node
             return handler
 
@@ -569,7 +567,16 @@ class BasicOpPanel(wx.Panel):
                 c_air_assist.SetToolTip(
                     info + "\n" + _("Enable Air Assist")
                 )
+                
                 self.op_panel.Bind(wx.EVT_CHECKBOX, on_check_air_assist(op), c_air_assist)
+
+                if hasattr(op, "air_assist"):
+                    flag = bool(op.air_assist)
+                    c_air_assist.SetValue(flag)
+                    c_air_assist.Enable(True)
+                else:
+                    c_air_assist.Enable(False)
+
                 op_sizer.Add(c_air_assist, 1, wx.ALIGN_CENTER_VERTICAL, 0)
 
                 t_power = TextCtrl(
